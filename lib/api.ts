@@ -1,7 +1,7 @@
 import type { Location, WeatherData, FloodRiskData, EvacuationCenter, Route } from "./types"
 
 // Mapbox token
-const MAPBOX_TOKEN = "pk.eyJ1IjoidmlzaDM5NDkiLCJhIjoiY205MWZsaTNsMDBndTJrczZqM3l6ZGQzbCJ9.APG_NijQMJ9Y8FLJUfB12g"
+const MAPBOX_TOKEN = "mapboxToken"
 
 // Mock API functions for demonstration purposes
 // In a real application, these would make actual API calls to weather services, mapping APIs, etc.

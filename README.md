@@ -18,6 +18,7 @@ A modern web application designed to predict flood risks, visualize affected are
 - **Frontend:** React with Next.js (TypeScript)
 - **Styling:** Tailwind CSS
 - **Mapping:** Mapbox
+- **Weather API:** Open Metro
 - **Tooling:** PostCSS, ESLint, Prettier
 
 ## 📂 Project Structure
@@ -44,7 +45,7 @@ flood-management---prediction/
 ├── tsconfig.json           # TypeScript configuration
 ├── next.config.ts          # Next.js configuration
 ├── postcss.config.mjs      # PostCSS configuration
-└── components.json         # UI library configuration (if applicable)
+└── components.json         # UI library configuration
 ```
 
 ## 📦 Setup Instructions

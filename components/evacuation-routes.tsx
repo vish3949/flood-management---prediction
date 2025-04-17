@@ -42,8 +42,7 @@ export default function EvacuationRoutes({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [mapLoading, setMapLoading] = useState(true);
-  const mapboxToken =
-    "pk.eyJ1IjoidmlzaDM5NDkiLCJhIjoiY205MWZsaTNsMDBndTJrczZqM3l6ZGQzbCJ9.APG_NijQMJ9Y8FLJUfB12g";
+  const mapboxToken = "mapboxToken";
   const customMapStyle = "mapbox://styles/vish3949/cm91g0e57009i01sdbrbo3ird";
 
   // Initialize map when component mounts

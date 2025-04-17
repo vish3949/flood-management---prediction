@@ -1,30 +1,33 @@
-"use client"
+"use client";
 
-import { useRef, useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Location, FloodRiskData } from "@/lib/types"
-import { Loader2 } from "lucide-react"
-import mapboxgl from "mapbox-gl"
-import "mapbox-gl/dist/mapbox-gl.css"
+import { useRef, useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Location, FloodRiskData } from "@/lib/types";
+import { Loader2 } from "lucide-react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 interface FloodRiskMapProps {
-  location: Location
-  floodData: FloodRiskData
+  location: Location;
+  floodData: FloodRiskData;
 }
 
-export default function FloodRiskMap({ location, floodData }: FloodRiskMapProps) {
-  const mapContainer = useRef<HTMLDivElement>(null)
-  const map = useRef<mapboxgl.Map | null>(null)
-  const [loading, setLoading] = useState(true)
-  const mapboxToken = "pk.eyJ1IjoidmlzaDM5NDkiLCJhIjoiY205MWZsaTNsMDBndTJrczZqM3l6ZGQzbCJ9.APG_NijQMJ9Y8FLJUfB12g"
-  const customMapStyle = "mapbox://styles/vish3949/cm91g0e57009i01sdbrbo3ird"
+export default function FloodRiskMap({
+  location,
+  floodData,
+}: FloodRiskMapProps) {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const [loading, setLoading] = useState(true);
+  const mapboxToken = "mapboxToken";
+  const customMapStyle = "mapbox://styles/vish3949/cm91g0e57009i01sdbrbo3ird";
 
   useEffect(() => {
     // Initialize map when component mounts
-    if (map.current) return // Skip if already initialized
+    if (map.current) return; // Skip if already initialized
 
     // Initialize Mapbox with the provided token
-    mapboxgl.accessToken = mapboxToken
+    mapboxgl.accessToken = mapboxToken;
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current!,
@@ -32,38 +35,40 @@ export default function FloodRiskMap({ location, floodData }: FloodRiskMapProps)
       center: [location.longitude, location.latitude],
       zoom: 12,
       pitch: 40, // Add some tilt to better visualize terrain
-    })
+    });
 
     // Add navigation controls
-    map.current.addControl(new mapboxgl.NavigationControl(), "top-right")
+    map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
 
     // Add scale
-    map.current.addControl(new mapboxgl.ScaleControl(), "bottom-left")
+    map.current.addControl(new mapboxgl.ScaleControl(), "bottom-left");
 
     // Add marker for current location
-    new mapboxgl.Marker({ color: "#3b82f6" }).setLngLat([location.longitude, location.latitude]).addTo(map.current)
+    new mapboxgl.Marker({ color: "#3b82f6" })
+      .setLngLat([location.longitude, location.latitude])
+      .addTo(map.current);
 
     // When map is loaded
     map.current.on("load", () => {
-      setLoading(false)
-      addFloodRiskLayers()
-    })
+      setLoading(false);
+      addFloodRiskLayers();
+    });
 
     return () => {
-      map.current?.remove()
-      map.current = null
-    }
-  }, [location])
+      map.current?.remove();
+      map.current = null;
+    };
+  }, [location]);
 
   // Update flood risk visualization when flood data changes
   useEffect(() => {
     if (map.current && map.current.loaded()) {
-      updateFloodRiskLayers()
+      updateFloodRiskLayers();
     }
-  }, [floodData])
+  }, [floodData]);
 
   const addFloodRiskLayers = () => {
-    if (!map.current || !map.current.loaded()) return
+    if (!map.current || !map.current.loaded()) return;
 
     // Add terrain source for 3D visualization
     map.current.addSource("mapbox-dem", {
@@ -71,16 +76,16 @@ export default function FloodRiskMap({ location, floodData }: FloodRiskMapProps)
       url: "mapbox://mapbox.mapbox-terrain-dem-v1",
       tileSize: 512,
       maxzoom: 14,
-    })
+    });
 
     // Add 3D terrain
-    map.current.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 })
+    map.current.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
 
     // Add flood risk areas as a GeoJSON source
     map.current.addSource("flood-risk", {
       type: "geojson",
       data: generateFloodRiskGeoJSON(),
-    })
+    });
 
     // Add a fill layer for flood risk areas
     map.current.addLayer({
@@ -104,7 +109,7 @@ export default function FloodRiskMap({ location, floodData }: FloodRiskMapProps)
         ],
         "fill-opacity": 0.7,
       },
-    })
+    });
 
     // Add an outline for flood risk areas
     map.current.addLayer({
@@ -128,13 +133,15 @@ export default function FloodRiskMap({ location, floodData }: FloodRiskMapProps)
         ],
         "line-width": 2,
       },
-    })
-  }
+    });
+  };
 
   const updateFloodRiskLayers = () => {
-    if (!map.current || !map.current.getSource("flood-risk")) return // Update the GeoJSON data for flood risk areas
-    ;(map.current.getSource("flood-risk") as mapboxgl.GeoJSONSource).setData(generateFloodRiskGeoJSON())
-  }
+    if (!map.current || !map.current.getSource("flood-risk")) return; // Update the GeoJSON data for flood risk areas
+    (map.current.getSource("flood-risk") as mapboxgl.GeoJSONSource).setData(
+      generateFloodRiskGeoJSON()
+    );
+  };
 
   // Generate GeoJSON for flood risk visualization
   // In a real application, this would come from a backend service with actual flood modeling
@@ -144,22 +151,22 @@ export default function FloodRiskMap({ location, floodData }: FloodRiskMapProps)
     const features = floodData.floodProneAreas.map((area) => {
       // Generate a polygon around the user location
       // In a real app, these would be actual geographic boundaries
-      const center = [location.longitude, location.latitude]
-      const radius = Math.random() * 0.01 + 0.005 // Random radius between 0.005 and 0.015 degrees
-      const points = 64
-      const riskLevel = area.riskLevel.toLowerCase()
+      const center = [location.longitude, location.latitude];
+      const radius = Math.random() * 0.01 + 0.005; // Random radius between 0.005 and 0.015 degrees
+      const points = 64;
+      const riskLevel = area.riskLevel.toLowerCase();
 
       // Create a rough circle
-      const coords = []
+      const coords = [];
       for (let i = 0; i < points; i++) {
-        const angle = (i / points) * 2 * Math.PI
+        const angle = (i / points) * 2 * Math.PI;
         // Make the shape irregular for more realism
-        const adjustedRadius = radius * (0.8 + Math.random() * 0.4)
-        const x = center[0] + adjustedRadius * Math.cos(angle)
-        const y = center[1] + adjustedRadius * Math.sin(angle)
-        coords.push([x, y])
+        const adjustedRadius = radius * (0.8 + Math.random() * 0.4);
+        const x = center[0] + adjustedRadius * Math.cos(angle);
+        const y = center[1] + adjustedRadius * Math.sin(angle);
+        coords.push([x, y]);
       }
-      coords.push(coords[0]) // Close the polygon
+      coords.push(coords[0]); // Close the polygon
 
       return {
         type: "Feature",
@@ -172,14 +179,14 @@ export default function FloodRiskMap({ location, floodData }: FloodRiskMapProps)
           type: "Polygon",
           coordinates: [coords],
         },
-      }
-    })
+      };
+    });
 
     return {
       type: "FeatureCollection",
       features,
-    }
-  }
+    };
+  };
 
   return (
     <Card className="bg-gray-800 border-gray-700">
@@ -187,7 +194,10 @@ export default function FloodRiskMap({ location, floodData }: FloodRiskMapProps)
         <CardTitle className="text-lg text-white">Flood Risk Map</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="border border-gray-700 rounded-md overflow-hidden" style={{ height: "400px" }}>
+        <div
+          className="border border-gray-700 rounded-md overflow-hidden"
+          style={{ height: "400px" }}
+        >
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 z-10">
               <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
@@ -227,6 +237,5 @@ export default function FloodRiskMap({ location, floodData }: FloodRiskMapProps)
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-
